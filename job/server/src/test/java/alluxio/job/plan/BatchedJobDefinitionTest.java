@@ -15,7 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 import alluxio.AlluxioURI;
 import alluxio.ClientContext;
-import alluxio.client.block.AlluxioBlockStore;
+import alluxio.client.block.store.AlluxioBlockStoreClient;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
@@ -62,7 +62,7 @@ import java.util.Set;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystem.class, JobServerContext.class, FileSystemContext.class,
-    AlluxioBlockStore.class})
+    AlluxioBlockStoreClient.class})
 public class BatchedJobDefinitionTest {
   private static final String TEST_URI = "/test";
   private static final WorkerNetAddress WORKER_ADDR_0 =
@@ -102,16 +102,16 @@ public class BatchedJobDefinitionTest {
 
   private JobServerContext mJobServerContext;
   private FileSystem mMockFileSystem;
-  private AlluxioBlockStore mMockBlockStore;
+  private AlluxioBlockStoreClient mMockBlockStore;
   private FileSystemContext mMockFsContext;
 
   @Before
   public void before() throws Exception {
     mMockFileSystem = PowerMockito.mock(FileSystem.class);
-    mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
+    mMockBlockStore = PowerMockito.mock(AlluxioBlockStoreClient.class);
     mMockFsContext = PowerMockito.mock(FileSystemContext.class);
-    PowerMockito.mockStatic(AlluxioBlockStore.class);
-    PowerMockito.when(AlluxioBlockStore.create(any(FileSystemContext.class)))
+    PowerMockito.mockStatic(AlluxioBlockStoreClient.class);
+    PowerMockito.when(AlluxioBlockStoreClient.create(any(FileSystemContext.class)))
         .thenReturn(mMockBlockStore);
     Mockito.when(mMockFsContext.getCachedWorkers()).thenReturn(BLOCK_WORKERS);
     PowerMockito.when(mMockFsContext.getClientContext())

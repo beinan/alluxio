@@ -13,7 +13,7 @@ package alluxio.cli.fs.command;
 
 import alluxio.annotation.PublicApi;
 import alluxio.cli.CommandUtils;
-import alluxio.client.block.AlluxioBlockStore;
+import alluxio.client.block.store.AlluxioBlockStoreClient;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.exception.status.InvalidArgumentException;
@@ -50,7 +50,7 @@ public final class GetUsedBytesCommand extends AbstractFileSystemCommand {
 
   @Override
   public int run(CommandLine cl) throws IOException {
-    AlluxioBlockStore blockStore = AlluxioBlockStore.create(mFsContext);
+    AlluxioBlockStoreClient blockStore = AlluxioBlockStoreClient.create(mFsContext);
     long usedBytes = blockStore.getUsedBytes();
     System.out.println("Used Bytes: " + usedBytes);
     return 0;

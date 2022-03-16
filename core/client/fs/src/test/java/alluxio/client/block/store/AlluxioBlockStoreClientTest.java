@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.client.block;
+package alluxio.client.block.store;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
@@ -23,6 +23,8 @@ import alluxio.ClientContext;
 import alluxio.ConfigurationRule;
 import alluxio.ConfigurationTestUtils;
 import alluxio.client.WriteType;
+import alluxio.client.block.BlockMasterClient;
+import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.policy.BlockLocationPolicy;
 import alluxio.client.block.policy.options.GetWorkerOptions;
 import alluxio.client.block.stream.BlockInStream;
@@ -87,11 +89,11 @@ import java.util.stream.Collectors;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Tests for {@link AlluxioBlockStore}.
+ * Tests for {@link AlluxioBlockStoreClient}.
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystemContext.class})
-public final class AlluxioBlockStoreTest {
+public final class AlluxioBlockStoreClientTest {
 
   private static InstancedConfiguration sConf = ConfigurationTestUtils.defaults();
 
@@ -151,7 +153,7 @@ public final class AlluxioBlockStoreTest {
 
   private BlockMasterClient mMasterClient;
   private BlockWorkerClient mWorkerClient;
-  private AlluxioBlockStore mBlockStore;
+  private AlluxioBlockStoreClient mBlockStore;
   private WorkerNetAddress mLocalAddr;
   private FileSystemContext mContext;
   private ClientContext mClientContext;
@@ -172,7 +174,7 @@ public final class AlluxioBlockStoreTest {
         new WorkerNetAddress().setHost(NetworkAddressUtils.getLocalHostName(
             (int) sConf.getMs(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS)));
 
-    mBlockStore = new AlluxioBlockStore(mContext,
+    mBlockStore = new AlluxioBlockStoreClient(mContext,
         TieredIdentityFactory.fromString("node=" + WORKER_HOSTNAME_LOCAL, sConf));
 
     when(mContext.acquireBlockWorkerClient(any(WorkerNetAddress.class)))
