@@ -82,12 +82,9 @@ public class LocalPageStore implements PageStore {
   }
 
   @Override
-  public int get(PageId pageId, int pageOffset, int bytesToRead, byte[] buffer, int bufferOffset,
+  public int get(PageId pageId, int pageOffset, int bytesToRead, PageReadTargetBuffer target,
       boolean isTemporary) throws IOException, PageNotFoundException {
     Preconditions.checkArgument(pageOffset >= 0, "page offset should be non-negative");
-    Preconditions.checkArgument(buffer.length >= bufferOffset,
-        "page offset %s should be " + "less or equal than buffer length %s", bufferOffset,
-        buffer.length);
     Path p = getFilePath(pageId, isTemporary);
     if (!Files.exists(p)) {
       throw new PageNotFoundException(p.toString());
@@ -103,10 +100,18 @@ public class LocalPageStore implements PageStore {
                 pageOffset, bytesSkipped));
       }
       int bytesRead = 0;
-      int bytesLeft = (int) Math.min(pageLength - pageOffset, buffer.length - bufferOffset);
+      int bytesLeft = (int) Math.min(pageLength - pageOffset, target.remaining());
       bytesLeft = Math.min(bytesLeft, bytesToRead);
       while (bytesLeft >= 0) {
-        int bytes = localFile.read(buffer, bufferOffset + bytesRead, bytesLeft);
+        int bytes = 0;
+        if (target.hasByteArray()) {
+          bytes = localFile.read(target.byteArray(), (int) target.offset() + bytesRead, bytesLeft);
+        } else if (target.hasByteBuffer()) {
+          bytes = localFile.getChannel().read(target.byteBuffer());
+        } else {
+          bytes = (int) localFile.getChannel()
+              .transferTo(pageOffset + bytesRead, bytesLeft, target.byteChannel());
+        }
         if (bytes <= 0) {
           break;
         }

@@ -11,8 +11,11 @@
 
 package alluxio.worker.page;
 
+import alluxio.client.file.CacheContext;
 import alluxio.client.file.cache.CacheManager;
 import alluxio.client.file.cache.PageId;
+import alluxio.client.file.cache.store.ByteBufferTargetBuffer;
+import alluxio.client.file.cache.store.PageReadTargetBuffer;
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.metrics.MetricKey;
@@ -86,34 +89,43 @@ public class PagedBlockReader extends BlockReader {
       return EMPTY_BYTE_BUFFER;
     }
 
-    byte[] buf = new byte[(int) length];
-    long bytesRead = 0;
-    while (bytesRead < length) {
-      long pos = offset + bytesRead;
-      long pageIndex = pos / mPageSize;
-      PageId pageId = new PageId(String.valueOf(mBlockId), pageIndex);
-      int currentPageOffset = (int) (pos % mPageSize);
-      int bytesLeftInPage =
-          (int) Math.min(mPageSize - currentPageOffset, length - bytesRead);
-      int bytesReadFromCache = mCacheManager.get(
-          pageId, currentPageOffset, bytesLeftInPage, buf, (int) bytesRead);
-      if (bytesReadFromCache > 0) {
-        bytesRead += bytesReadFromCache;
-        MetricsSystem.meter(MetricKey.CLIENT_CACHE_BYTES_READ_CACHE.getName()).mark(bytesRead);
-        mReadFromLocalCache = true;
-      } else {
-        byte[] page = readPageFromUFS(pos);
-        if (page.length > 0) {
-          System.arraycopy(page, currentPageOffset, buf, (int) bytesRead, bytesLeftInPage);
-          bytesRead += bytesLeftInPage;
-          MetricsSystem.meter(MetricKey.CLIENT_CACHE_BYTES_REQUESTED_EXTERNAL.getName())
-              .mark(bytesLeftInPage);
-          mReadFromUfs = true;
-          mCacheManager.put(pageId, page);
+    //byte[] buf = new byte[(int) length];
+    //ByteBuf buf = PooledByteBufAllocator.DEFAULT.buffer((int) length, (int) length);
+    ByteBuffer buf = ByteBuffer.allocateDirect((int) length);
+    try {
+      PageReadTargetBuffer target = new ByteBufferTargetBuffer(buf);
+      long bytesRead = 0;
+      while (bytesRead < length) {
+        long pos = offset + bytesRead;
+        long pageIndex = pos / mPageSize;
+        PageId pageId = new PageId(String.valueOf(mBlockId), pageIndex);
+        int currentPageOffset = (int) (pos % mPageSize);
+        int bytesLeftInPage =
+            (int) Math.min(mPageSize - currentPageOffset, length - bytesRead);
+        int bytesReadFromCache = mCacheManager.get(
+            pageId, currentPageOffset, bytesLeftInPage, target, CacheContext.defaults());
+        if (bytesReadFromCache > 0) {
+          bytesRead += bytesReadFromCache;
+          MetricsSystem.meter(MetricKey.CLIENT_CACHE_BYTES_READ_CACHE.getName()).mark(bytesRead);
+          mReadFromLocalCache = true;
+        } else {
+          byte[] page = readPageFromUFS(pos);
+          if (page.length > 0) {
+            //buf.writeBytes(page, currentPageOffset, bytesLeftInPage);
+            buf.put(page, currentPageOffset, bytesLeftInPage);
+            bytesRead += bytesLeftInPage;
+            MetricsSystem.meter(MetricKey.CLIENT_CACHE_BYTES_REQUESTED_EXTERNAL.getName())
+                .mark(bytesLeftInPage);
+            mReadFromUfs = true;
+            mCacheManager.put(pageId, page);
+          }
         }
       }
+
+      return buf;
+    } finally {
+      //buf.release();
     }
-    return ByteBuffer.wrap(buf);
   }
 
   private byte[] readPageFromUFS(long pos) throws IOException {
