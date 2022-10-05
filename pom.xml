@@ -127,7 +127,7 @@
   </repositories>
 
   <properties>
-    <argLine></argLine>
+    <argLine/>
     <apache.curator.version>4.2.0</apache.curator.version>
     <aws.amazonaws.version>1.11.815</aws.amazonaws.version>
     <build.path>build</build.path>
@@ -153,7 +153,7 @@
     <prometheus.version>0.8.0</prometheus.version>
     <guava.version>29.0-jre</guava.version>
     <parquet.version>1.11.0</parquet.version>
-    <protobuf.version>3.12.4</protobuf.version>
+    <protobuf.version>3.16.3</protobuf.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <ratis.version>1.0.0</ratis.version>
     <slf4j.version>1.7.30</slf4j.version>
