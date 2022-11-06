@@ -127,7 +127,7 @@
   </repositories>
 
   <properties>
-    <argLine></argLine>
+    <argLine/>
     <apache.curator.version>4.2.0</apache.curator.version>
     <aws.amazonaws.version>1.11.815</aws.amazonaws.version>
     <build.path>build</build.path>
@@ -141,7 +141,7 @@
     <jacoco.version>0.8.5</jacoco.version>
     <java.version>1.8</java.version>
     <jaxb.version>2.3.3</jaxb.version>
-    <jersey.version>2.29.1</jersey.version>
+    <jersey.version>3.0.4</jersey.version>
     <jetty.version>9.4.40.v20210413</jetty.version>
     <junit.version>4.13</junit.version>
     <log4j.version>2.13.3</log4j.version>
