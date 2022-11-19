@@ -127,7 +127,7 @@
   </repositories>
 
   <properties>
-    <argLine></argLine>
+    <argLine/>
     <apache.curator.version>4.2.0</apache.curator.version>
     <aws.amazonaws.version>1.11.815</aws.amazonaws.version>
     <build.path>build</build.path>
@@ -146,7 +146,7 @@
     <junit.version>4.13</junit.version>
     <log4j.version>2.13.3</log4j.version>
     <maven.version>3.3.9</maven.version>
-    <metrics.version>4.1.11</metrics.version>
+    <metrics.version>4.2.13</metrics.version>
     <orc.version>1.6.3</orc.version>
     <oshi.version>5.3.5</oshi.version>
     <powermock.version>2.0.7</powermock.version>
