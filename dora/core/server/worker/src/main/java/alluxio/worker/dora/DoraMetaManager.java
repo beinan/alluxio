@@ -83,7 +83,7 @@ public class DoraMetaManager {
    */
   public Optional<FileStatus> loadFromUfs(String path) throws IOException {
     Optional<FileStatus> fileStatus = getFromUfs(path);
-    if (fileStatus.isEmpty()) {
+    if (!fileStatus.isPresent()) {
       removeFromMetaStore(path);
     } else {
       put(path, fileStatus.get());
@@ -107,7 +107,7 @@ public class DoraMetaManager {
    */
   public void put(String path, FileStatus meta) {
     Optional<FileStatus> status = mMetastore.getDoraMeta(path);
-    if (status.isEmpty()
+    if (!status.isPresent()
         || status.get().getFileInfo().getFolder()
         || status.get().getFileInfo().getLength() == 0) {
       mMetastore.putDoraMeta(path, meta);

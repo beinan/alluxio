@@ -35,6 +35,7 @@ import alluxio.security.authorization.Mode;
 import alluxio.underfs.Fingerprint;
 import alluxio.underfs.UfsStatus;
 import alluxio.util.io.BufferUtils;
+import alluxio.wire.FileInfo;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -411,7 +412,8 @@ public class PagedDoraWorkerTest {
 
     loadFileData(f.getPath());
 
-    var result = mWorker.getFileInfo(f.getPath(), GetStatusPOptions.getDefaultInstance());
+    FileInfo result =
+        mWorker.getFileInfo(f.getPath(), GetStatusPOptions.getDefaultInstance());
     List<PageId> cachedPages =
         mCacheManager.getCachedPageIdsByFileId(
             new AlluxioURI(f.getPath()).hash(), fileContent.length());
@@ -447,7 +449,7 @@ public class PagedDoraWorkerTest {
     File f = mTestFolder.newFile();
     Files.write(f.toPath(), fileContent.getBytes());
 
-    var result = mWorker.getFileInfo(f.getPath(), GetStatusPOptions.getDefaultInstance());
+    FileInfo result = mWorker.getFileInfo(f.getPath(), GetStatusPOptions.getDefaultInstance());
     List<PageId> cachedPages =
         mCacheManager.getCachedPageIdsByFileId(
             new AlluxioURI(f.getPath()).hash(), fileContent.length());
@@ -505,7 +507,7 @@ public class PagedDoraWorkerTest {
     mWorker.setPopulateMetadataFingerprint(populateFingerprint);
     File f = mTestFolder.newFolder();
 
-    var result = mWorker.getFileInfo(f.getPath(), GetStatusPOptions.getDefaultInstance());
+    FileInfo result = mWorker.getFileInfo(f.getPath(), GetStatusPOptions.getDefaultInstance());
     assertTrue(result.isFolder());
 
     result = mWorker.getFileInfo(f.getPath(), GET_STATUS_OPTIONS_MUST_SYNC);
